@@ -1,4 +1,4 @@
-FROM postgres:9.6-alpine
+FROM postgres:13.1-alpine
 
 COPY ./setup-master.sh /docker-entrypoint-initdb.d/setup-master.sh
 

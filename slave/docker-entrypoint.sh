@@ -7,17 +7,16 @@ do
 echo "Waiting for master to ping..."
 sleep 1s
 done
-until pg_basebackup -h pg_master -D ${PGDATA} -U ${PG_REP_USER} -vP -W
+until pg_basebackup -h pg_master -D ${PGDATA} -R -v -U ${PG_REP_USER}
 do
 echo "Waiting for master to connect..."
 sleep 1s
 done
 echo "host replication all 0.0.0.0/0 md5" >> "$PGDATA/pg_hba.conf"
+echo "primary_conninfo = 'host=pg_master port=5432 user=$PG_REP_USER'" >> "$PGDATA/postgresql.conf"
 set -e
-cat > ${PGDATA}/recovery.conf <<EOF
-standby_mode = on
+cat > ${PGDATA}/postgresql.auto.conf <<EOF
 primary_conninfo = 'host=pg_master port=5432 user=$PG_REP_USER password=$PG_REP_PASSWORD'
-trigger_file = '/tmp/touch_me_to_promote_to_me_master'
 EOF
 chown postgres. ${PGDATA} -R
 chmod 700 ${PGDATA} -R
